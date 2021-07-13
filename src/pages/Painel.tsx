@@ -21,6 +21,7 @@ export function Painel() {
         setTema(event.target.value);
 
     }
+
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const noticia = {
@@ -39,8 +40,13 @@ export function Painel() {
                     Authorization: "Bearer " + token,
                 }
             })
-
+            setLinkImagem("")
+            setDescricao("")
+            setTitulo("")
+            setLink("")
+            setTema("")
             history.push('/painel');
+            
         } catch (err) {
             alert('Erro ao cadastrar a notícia, tente novamente.');
         }
@@ -93,6 +99,7 @@ export function Painel() {
                                 <span>Tema</span>
 
                                 <select value={tema} onChange={handleChange}>
+                                    <option value="">Selecione um tema</option>
                                     <option value="Esportes">Esportes</option>
                                     <option value="Política">Política</option>
                                     <option value="Entretenimento">Entretenimento</option>
