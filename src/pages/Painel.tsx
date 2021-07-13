@@ -1,8 +1,34 @@
 import { useHistory } from 'react-router-dom'
-import { FormEvent, useState } from 'react';
+import { useEffect,FormEvent, useState } from 'react';
 import Modal, { ModalHeader, ModalBody, ModalFooter, useModal } from '../components/Modal'
 import '../styles/painel.css'
 import api from '../services/api'
+
+
+import * as React from 'react';
+import { DataGrid } from '@material-ui/data-grid';
+
+const columns = [
+    { field: 'id', headerName: 'ID', width: 130 },
+    { field: 'titulo', headerName: 'Título', width: 200 },
+    { field: 'url_imagem', headerName: 'Imagem', width: 200 },
+    { field: 'descricao', headerName: 'Descrição', width: 200 },
+    { field: 'tema', headerName: 'Tema', width: 200 },
+    { field: 'url_noticia', headerName: 'Link da noticia', width: 200 },
+];
+
+const rows = [
+    { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
+    { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
+    { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
+    { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
+    { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
+    { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
+    { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
+    { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
+    { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+];
+
 
 export function Painel() {
     const history = useHistory()
@@ -12,8 +38,24 @@ export function Painel() {
     const [descricao, setDescricao] = useState('')
     const [tema, setTema] = useState('')
     const [link, setLink] = useState('')
-
-    function logout(){
+    const[rows,setRows]=useState([])
+    
+    useEffect(() => {
+        async function teste(){
+            await api.get('/noticia',{ 
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem('token'),
+              }
+            }
+            ).then(response => {
+                setRows(response.data);
+                console.log("TABELA")
+                console.log(rows)
+            })
+        }
+        teste()
+    }, [])
+    function logout() {
         localStorage.removeItem('token');
         history.push('/')
     }
@@ -46,7 +88,7 @@ export function Painel() {
             setLink("")
             setTema("")
             history.push('/painel');
-            
+
         } catch (err) {
             alert('Erro ao cadastrar a notícia, tente novamente.');
         }
@@ -60,10 +102,12 @@ export function Painel() {
                 </button>
             </header>
             <div id="main-content">
-                <h2>TABELA</h2>
-                
-              
-            
+                <h2>Notícias</h2>
+                <div style={{ height: 400, width: '100%' }}>
+                    <DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection />
+                </div>
+
+
                 <div id="modal">
                     <button id="button-modal" onClick={toggle}>
                         +
