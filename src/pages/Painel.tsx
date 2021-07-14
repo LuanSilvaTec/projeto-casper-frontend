@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router-dom'
-import { useEffect,FormEvent, useState } from 'react';
+import { useEffect, FormEvent, useState } from 'react';
 import Modal, { ModalHeader, ModalBody, ModalFooter, useModal } from '../components/Modal'
 import '../styles/painel.css'
 import api from '../services/api'
@@ -10,23 +10,11 @@ import { DataGrid } from '@material-ui/data-grid';
 
 const columns = [
     { field: 'id', headerName: 'ID', width: 130 },
-    { field: 'titulo', headerName: 'Título', width: 200 },
-    { field: 'url_imagem', headerName: 'Imagem', width: 200 },
-    { field: 'descricao', headerName: 'Descrição', width: 200 },
+    { field: 'titulo', headerName: 'Título', width: 200, editable: true },
+    { field: 'url_imagem', headerName: 'Imagem', width: 200, editable: true },
+    { field: 'descricao', headerName: 'Descrição', width: 200, editable: true },
     { field: 'tema', headerName: 'Tema', width: 200 },
-    { field: 'url_noticia', headerName: 'Link da noticia', width: 200 },
-];
-
-const rows = [
-    { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-    { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-    { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-    { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-    { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-    { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-    { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-    { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-    { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+    { field: 'url_noticia', headerName: 'Link da noticia', width: 200, editable: true },
 ];
 
 
@@ -38,14 +26,14 @@ export function Painel() {
     const [descricao, setDescricao] = useState('')
     const [tema, setTema] = useState('')
     const [link, setLink] = useState('')
-    const[rows,setRows]=useState([])
-    
+    const [rows, setRows] = useState([])
+    const [selected, setSelected] = useState('')
     useEffect(() => {
-        async function teste(){
-            await api.get('/noticia',{ 
+        async function teste() {
+            await api.get('/noticia', {
                 headers: {
                     Authorization: "Bearer " + localStorage.getItem('token'),
-              }
+                }
             }
             ).then(response => {
                 setRows(response.data);
@@ -54,10 +42,15 @@ export function Painel() {
             })
         }
         teste()
+        //console.log(selected)
     }, [])
     function logout() {
         localStorage.removeItem('token');
         history.push('/')
+    }
+    function handleSelected(e: React.ChangeEvent<HTMLTableElement>) {
+        console.log(e)
+        //onRowSelected={(e) => console.log(e.data)}
     }
     function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
         setTema(event.target.value);
@@ -74,6 +67,7 @@ export function Painel() {
             url_noticia: link
         }
         //console.log(noticia)
+
         const token = localStorage.getItem('token')
         console.log(token)
         try {
@@ -96,7 +90,7 @@ export function Painel() {
     return (
         <div id="page-painel">
             <header>
-                <h1>Painel Administrativo do Casper</h1>
+                <h1>Painel Administrativo do Casper Lu</h1>
                 <button onClick={logout}>
                     Logout
                 </button>
@@ -104,7 +98,7 @@ export function Painel() {
             <div id="main-content">
                 <h2>Notícias</h2>
                 <div style={{ height: 400, width: '100%' }}>
-                    <DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection />
+                    <DataGrid rows={rows} columns={columns} pageSize={10} checkboxSelection onRowSelected={(e) => setSelected(e.data.id)} />
                 </div>
 
 
@@ -118,19 +112,26 @@ export function Painel() {
                         </ModalHeader>
                         <ModalBody>
                             <form onSubmit={handleSubmit}>
-                                <span>Link para imagem da noticia</span>
-                                <input
-                                    type="text"
-                                    placeholder="Digite o link da imagem"
-                                    onChange={event => setLinkImagem(event.target.value)}
-                                    value={linkImagem}
-                                />
                                 <span>Título da notícia</span>
                                 <input
                                     type="text"
                                     placeholder="Digite o Título da notícia"
                                     onChange={event => setTitulo(event.target.value)}
                                     value={titulo}
+                                />
+                                <span>Link da notícia</span>
+                                <input
+                                    type="text"
+                                    placeholder="Insira o link"
+                                    onChange={event => setLink(event.target.value)}
+                                    value={link}
+                                />
+                                <span>Link para imagem da noticia</span>
+                                <input
+                                    type="text"
+                                    placeholder="Digite o link da imagem"
+                                    onChange={event => setLinkImagem(event.target.value)}
+                                    value={linkImagem}
                                 />
                                 <span>Descrição</span>
                                 <input
@@ -141,7 +142,6 @@ export function Painel() {
                                 />
                                 <br /><br />
                                 <span>Tema</span>
-
                                 <select value={tema} onChange={handleChange}>
                                     <option value="">Selecione um tema</option>
                                     <option value="Esportes">Esportes</option>
@@ -151,13 +151,7 @@ export function Painel() {
                                 </select>
                                 <br />
                                 <br />
-                                <span>Link da notícia</span>
-                                <input
-                                    type="text"
-                                    placeholder="Insira o link"
-                                    onChange={event => setLink(event.target.value)}
-                                    value={link}
-                                />
+
                                 <button>
                                     Cadastrar notícia
                                 </button>
