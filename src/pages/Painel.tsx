@@ -6,7 +6,7 @@ import api from '../services/api'
 
 
 import * as React from 'react';
-import { DataGrid } from '@material-ui/data-grid';
+import { DataGrid, GridCellValue, GridEditCellProps, GridEditCellPropsParams } from '@material-ui/data-grid';
 
 const columns = [
     { field: 'id', headerName: 'ID', width: 130 },
@@ -17,8 +17,8 @@ const columns = [
     { field: 'url_noticia', headerName: 'Link da noticia', width: 200, editable: true },
 ];
 
-
 export function Painel() {
+    const [addNews, setAddNews] = useState(0)
     const history = useHistory()
     const { isShowing, toggle } = useModal();
     const [linkImagem, setLinkImagem] = useState('')
@@ -28,6 +28,7 @@ export function Painel() {
     const [link, setLink] = useState('')
     const [rows, setRows] = useState([])
     const [selected, setSelected] = useState('')
+    const[rowChanged,setRowChanged]=useState({})
     useEffect(() => {
         async function teste() {
             await api.get('/noticia', {
@@ -42,16 +43,58 @@ export function Painel() {
             })
         }
         teste()
-        //console.log(selected)
-    }, [])
+        console.log(selected)
+    }, [addNews])
     function logout() {
         localStorage.removeItem('token');
         history.push('/')
     }
-    function handleSelected(e: React.ChangeEvent<HTMLTableElement>) {
-        console.log(e)
-        //onRowSelected={(e) => console.log(e.data)}
+    async function handleUpdate(data: GridEditCellPropsParams) {
+        //console.log("UPDATE")
+        //console.log(data)
+        let noticia={}
+        const{id, field, props}=data
+        if(field=='titulo'){
+            noticia={
+                'titulo':props.value
+            }
+        }else if(field=='url_imagem'){
+            noticia={
+                'url_imagem':props.value
+            }
+        }
+        else if(field=='descricao'){
+            noticia={
+                'descricao':props.value
+            }
+        }
+        else if(field=='url_noticia'){
+            noticia={
+                'url_noticia':props.value
+            }
+        }
+        
+        
+        
+        console.log(noticia)
+        //field / id /props.value
+        try {
+            await api.put('/noticia/'+id, noticia, {
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem('token'),
+                }
+            })
+            history.push('/painel');
+            alert('Atualizado com sucesso.');
+
+        } catch (err) {
+            alert('Erro ao atualizar a notícia, tente novamente.');
+        }
     }
+
+
+
+
     function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
         setTema(event.target.value);
 
@@ -82,6 +125,7 @@ export function Painel() {
             setLink("")
             setTema("")
             history.push('/painel');
+            setAddNews(+1)
 
         } catch (err) {
             alert('Erro ao cadastrar a notícia, tente novamente.');
@@ -97,10 +141,17 @@ export function Painel() {
             </header>
             <div id="main-content">
                 <h2>Notícias</h2>
-                <div style={{ height: 400, width: '100%' }}>
-                    <DataGrid rows={rows} columns={columns} pageSize={10} checkboxSelection onRowSelected={(e) => setSelected(e.data.id)} />
+                <div style={{ height: 700, width: '100%' }}>
+                    <DataGrid 
+                    rows={rows} 
+                    columns={columns} 
+                    pageSize={10} 
+                    checkboxSelection 
+                    onRowSelected={(e) => setSelected(e.data.id)} 
+                    onEditCellChangeCommitted={event =>handleUpdate(event)}
+                    />
                 </div>
-
+                    
 
                 <div id="modal">
                     <button id="button-modal" onClick={toggle}>
