@@ -49,20 +49,7 @@ header{
 h2{
     font-size: 700;
     font-family: Roboto, Arial, Helvetica, sans-serif;
-}/*
-div{
-    background:#835afd;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding: 120px 80px;
-    height: 70vh;
-    width:70vh;
-}*//*
-form{
-    display:flex;
-    flex-direction:column;
-}*/
+}
 input{
     height:50px;
     border-radius: 8px;
